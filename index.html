@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>PKSF উপস্থিতি নিবন্ধন</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f7f4;color:#1a3a2a;min-height:100vh}
+.header{background:#1a6b3a;color:#fff;padding:14px 20px;text-align:center}
+.header .logo{font-size:22px;font-weight:700;letter-spacing:3px}
+.header .ev-name{font-size:14px;margin-top:4px;font-weight:600;opacity:.95}
+.header .ev-meta{font-size:11px;margin-top:3px;opacity:.75}
+#startup{position:fixed;inset:0;background:#f0f7f4;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;z-index:999;gap:14px}
+#startup .sp{width:46px;height:46px;border:4px solid #c8dcd3;border-top-color:#1a6b3a;
+  border-radius:50%;animation:spin .7s linear infinite}
+#startup p{font-size:14px;color:#4a6a5a}
+#startup small{font-size:11px;color:#9ab8a8}
+@keyframes spin{to{transform:rotate(360deg)}}
+.section{display:none;padding:16px 14px 50px;max-width:480px;margin:0 auto}
+.section.active{display:block}
+.card{background:#fff;border-radius:12px;padding:18px;margin-bottom:14px;
+  box-shadow:0 2px 8px rgba(0,0,0,.07)}
+h2{font-size:16px;color:#1a6b3a;margin-bottom:12px;font-weight:600}
+.no-event{text-align:center;padding:30px 20px}
+.no-event .icon{font-size:54px;margin-bottom:14px}
+.type-btn{width:100%;padding:15px;border:2px solid #1a6b3a;border-radius:10px;
+  background:#fff;color:#1a6b3a;font-size:14px;font-weight:600;cursor:pointer;
+  margin-bottom:10px;display:flex;align-items:center;gap:12px;text-align:left}
+.type-btn:active{background:#1a6b3a;color:#fff}
+.type-btn .icon{font-size:26px;flex-shrink:0}
+.type-btn .sub{font-size:11px;font-weight:400;opacity:.7;margin-top:2px}
+label{display:block;font-size:12.5px;color:#4a6a5a;margin-bottom:4px;font-weight:500}
+input[type=text],input[type=tel]{width:100%;padding:11px 13px;border:1.5px solid #c8dcd3;
+  border-radius:8px;font-size:16px;margin-bottom:12px;background:#fafffe;
+  color:#1a3a2a;-webkit-appearance:none}
+input:focus{outline:none;border-color:#1a6b3a;background:#fff}
+input.ok{border-color:#1a6b3a;background:#f0fff5}
+input.bad{border-color:#cc4a40;background:#fff5f5}
+.id-hint{font-size:12.5px;min-height:20px;margin:-8px 0 10px;padding:0 2px}
+.id-hint.ok{color:#1a6b3a;font-weight:600}
+.id-hint.bad{color:#cc4a40}
+.id-hint.idle{color:#8aaa9a}
+.btn-pri{width:100%;padding:13px;background:#1a6b3a;color:#fff;border:none;
+  border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px}
+.btn-pri:disabled{background:#aaa;cursor:not-allowed}
+.btn-sec{width:100%;padding:11px;background:transparent;color:#1a6b3a;
+  border:1.5px solid #1a6b3a;border-radius:8px;font-size:13px;cursor:pointer;margin-top:9px}
+.info-row{display:flex;justify-content:space-between;padding:7px 0;
+  border-bottom:1px solid #eaf3ee;font-size:13.5px;gap:8px}
+.info-lbl{color:#6a8a7a;min-width:80px;flex-shrink:0}
+.info-val{font-weight:500;text-align:right;flex:1;word-break:break-all}
+.sig-wrap{border:1.5px dashed #aac8b8;border-radius:8px;background:#fafffe;
+  margin:8px 0;overflow:hidden}
+canvas#sigPad{display:block;width:100%;height:150px;touch-action:none;cursor:crosshair}
+.sig-foot{display:flex;justify-content:space-between;align-items:center;padding:5px 0}
+.sig-hint{font-size:11.5px;color:#9ab8a8}
+.btn-clr{background:transparent;border:1px solid #ddd;border-radius:6px;
+  padding:4px 11px;font-size:12px;cursor:pointer;color:#666}
+.alert{border-radius:8px;padding:11px 13px;font-size:13px;margin:8px 0;line-height:1.5}
+.alert-err{background:#fdecea;color:#a42a20;border:1px solid #f5b8b5}
+.alert-warn{background:#fff8e5;color:#7a5a00;border:1px solid #f5d98a}
+.loading-sec{text-align:center;padding:50px 20px;color:#4a6a5a;font-size:14px}
+.spin-sm{width:32px;height:32px;border:3px solid #c8dcd3;border-top-color:#1a6b3a;
+  border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+.suc-icon{font-size:64px;text-align:center;margin:16px 0 8px}
+.suc-name{font-size:20px;font-weight:700;color:#1a6b3a;text-align:center;margin-bottom:4px}
+.suc-ev{font-size:12px;color:#8aaa9a;text-align:center;margin-bottom:4px}
+.suc-time{font-size:11px;color:#9ab8a8;text-align:center;margin-bottom:18px}
+.suc-box{background:#e5f3ea;border-radius:8px;padding:14px;font-size:13px;
+  color:#1a6b3a;text-align:center;line-height:1.8}
+.badge{display:inline-block;padding:3px 11px;border-radius:20px;
+  font-size:12px;font-weight:600;margin-bottom:12px}
+.badge-staff{background:#e5f3ea;color:#1a6b3a}
+.badge-guest{background:#fff3e0;color:#7a5a00}
+</style>
+</head>
+<body>
+
+<div id="startup">
+  <div class="sp"></div>
+  <p>তথ্য লোড হচ্ছে…</p>
+  <small>একবারই লোড হবে, তারপর সব দ্রুত</small>
+</div>
+
+<div id="app-body" style="display:none">
+  <div class="header">
+    <div class="logo">PKSF</div>
+    <div class="ev-name" id="hdr-name">উপস্থিতি নিবন্ধন</div>
+    <div class="ev-meta" id="hdr-meta"></div>
+  </div>
+
+  <div class="section active" id="sec-noev">
+    <div class="card" style="margin-top:24px">
+      <div class="no-event">
+        <div class="icon">🔍</div>
+        <h2 style="color:#a42a20">সভার তথ্য পাওয়া যায়নি</h2>
+        <p style="font-size:13px;color:#6a6a6a;margin-top:8px">QR Code সঠিকভাবে স্ক্যান করুন।<br>সমস্যা থাকলে আয়োজকের সাথে যোগাযোগ করুন।</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-welcome">
+    <div class="card" style="margin-top:16px">
+      <h2>উপস্থিতি নিবন্ধন করুন</h2>
+      <p style="font-size:12.5px;color:#6a8a7a;margin-bottom:14px">আপনি কোন ধরনের অংশগ্রহণকারী?</p>
+      <button class="type-btn" onclick="goStaff()">
+        <span class="icon">🏢</span>
+        <div><div>PKSF কর্মী</div><div class="sub">Official ID দিয়ে প্রবেশ করুন</div></div>
+      </button>
+      <button class="type-btn" onclick="goGuest()">
+        <span class="icon">🤝</span>
+        <div><div>বাইরের অতিথি</div><div class="sub">নাম ও প্রতিষ্ঠান দিয়ে প্রবেশ করুন</div></div>
+      </button>
+    </div>
+  </div>
+
+  <div class="section" id="sec-staff">
+    <div class="card" style="margin-top:16px">
+      <h2>আপনার Official ID লিখুন</h2>
+      <label>Official ID নম্বর</label>
+      <input type="text" id="inp-id" placeholder="যেমন: 107005"
+             autocomplete="off" autocorrect="off" oninput="onIdType(this.value)">
+      <div class="id-hint idle" id="id-hint">ID লিখলে তথ্য তাৎক্ষণিক দেখাবে</div>
+      <div id="staff-err"></div>
+      <button class="btn-pri" id="btn-sn" onclick="proceedStaff()" disabled>পরবর্তী →</button>
+      <button class="btn-sec" onclick="show('sec-welcome')">← পিছনে যান</button>
+    </div>
+  </div>
+
+  <div class="section" id="sec-guest">
+    <div class="card" style="margin-top:16px">
+      <h2>আপনার তথ্য দিন</h2>
+      <label>পূর্ণ নাম *</label>
+      <input type="text" id="g-name" placeholder="আপনার নাম">
+      <label>প্রতিষ্ঠানের নাম *</label>
+      <input type="text" id="g-org" placeholder="প্রতিষ্ঠান / সংগঠনের নাম">
+      <label>পদবি</label>
+      <input type="text" id="g-desig" placeholder="আপনার পদবি">
+      <label>মোবাইল নম্বর</label>
+      <input type="tel" id="g-mobile" placeholder="01XXXXXXXXX">
+      <div id="guest-err"></div>
+      <button class="btn-pri" onclick="proceedGuest()">পরবর্তী →</button>
+      <button class="btn-sec" onclick="show('sec-welcome')">← পিছনে যান</button>
+    </div>
+  </div>
+
+  <div class="section" id="sec-loading">
+    <div class="loading-sec" style="margin-top:40px">
+      <div class="spin-sm"></div>
+      <div>উপস্থিতি নথিভুক্ত করা হচ্ছে…</div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-confirm">
+    <div class="card" style="margin-top:16px">
+      <h2>তথ্য যাচাই করুন</h2>
+      <div id="c-badge"></div>
+      <div id="c-rows"></div>
+      <div id="c-err"></div>
+    </div>
+    <div class="card">
+      <h2>ডিজিটাল স্বাক্ষর করুন</h2>
+      <p style="font-size:12px;color:#6a8a7a;margin-bottom:8px">আঙুল বা মাউস দিয়ে নিচে স্বাক্ষর করুন</p>
+      <div class="sig-wrap"><canvas id="sigPad"></canvas></div>
+      <div class="sig-foot">
+        <span class="sig-hint">এখানে স্বাক্ষর করুন</span>
+        <button class="btn-clr" onclick="clearSig()">মুছুন</button>
+      </div>
+    </div>
+    <button class="btn-pri" id="btn-sub" onclick="submitForm()">✓ উপস্থিতি নিশ্চিত করুন</button>
+    <button class="btn-sec" onclick="goBack()">← পিছনে যান</button>
+  </div>
+
+  <div class="section" id="sec-success">
+    <div class="card" style="margin-top:18px;text-align:center;padding:24px">
+      <div class="suc-icon">✅</div>
+      <div class="suc-name" id="s-name"></div>
+      <div class="suc-ev" id="s-ev"></div>
+      <div class="suc-time" id="s-time"></div>
+      <div class="suc-box"><strong>ধন্যবাদ!</strong><br>আপনার উপস্থিতি সফলভাবে নথিভুক্ত হয়েছে।<br>আপনি এখন সভাকক্ষে প্রবেশ করতে পারেন।</div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-error">
+    <div class="card" style="margin-top:18px;text-align:center;padding:24px">
+      <div style="font-size:52px;margin-bottom:14px">⚠️</div>
+      <div id="e-msg" class="alert alert-err" style="text-align:left"></div>
+      <button class="btn-pri" style="margin-top:14px" onclick="show('sec-welcome')">আবার চেষ্টা করুন</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────────
+// Apps Script URL — এটা পরিবর্তন করবেন না
+var APPS_URL = 'https://script.google.com/macros/s/AKfycbxVtyPr6jLi_7xLDxtKGV0Q3w2qvCt0fsKITev9O7g76ycgTICsgeGfFZ6M39WUBYJYOA/exec';
+
+// ── State ────────────────────────────────────────────────────────
+var empDB   = {};
+var evInfo  = null;
+var cType   = '';
+var emp     = {};
+var foundEmp = null;
+
+// ── Get event code from URL ──────────────────────────────────────
+var EVENT_CODE = new URLSearchParams(window.location.search).get('ev') || '';
+
+// ── Startup: load employees + event info via fetch ───────────────
+var loaded = 0;
+function checkReady() {
+  loaded++;
+  if (loaded < 2) return;
+  document.getElementById('startup').style.display = 'none';
+  document.getElementById('app-body').style.display = 'block';
+  if (evInfo) {
+    document.getElementById('hdr-name').textContent = evInfo.name || 'উপস্থিতি নিবন্ধন';
+    var meta = [];
+    if (evInfo.date)  meta.push(evInfo.date);
+    if (evInfo.venue) meta.push(evInfo.venue);
+    document.getElementById('hdr-meta').textContent = meta.join(' | ');
+    show('sec-welcome');
+  } else {
+    show('sec-noev');
+  }
+}
+
+// Load employees
+fetch(APPS_URL + '?action=getAllEmployees')
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if (data && !data._error) empDB = data;
+    checkReady();
+  })
+  .catch(function(){ checkReady(); });
+
+// Load event info
+if (EVENT_CODE) {
+  fetch(APPS_URL + '?action=getEventInfo&ev=' + encodeURIComponent(EVENT_CODE))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (data && data.found) evInfo = data;
+      checkReady();
+    })
+    .catch(function(){ checkReady(); });
+} else {
+  checkReady();
+}
+
+// ── Navigation ───────────────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function goStaff() {
+  cType='staff'; foundEmp=null;
+  document.getElementById('inp-id').value='';
+  document.getElementById('inp-id').className='';
+  document.getElementById('id-hint').className='id-hint idle';
+  document.getElementById('id-hint').textContent='ID লিখলে তথ্য তাৎক্ষণিক দেখাবে';
+  document.getElementById('staff-err').innerHTML='';
+  document.getElementById('btn-sn').disabled=true;
+  show('sec-staff');
+  setTimeout(function(){ document.getElementById('inp-id').focus(); },100);
+}
+function goGuest(){ cType='guest'; show('sec-guest'); }
+function goBack(){ show(cType==='staff'?'sec-staff':'sec-guest'); }
+
+// ── Instant ID lookup ────────────────────────────────────────────
+function onIdType(val) {
+  var hint=document.getElementById('id-hint'),
+      inp=document.getElementById('inp-id'),
+      btn=document.getElementById('btn-sn');
+  foundEmp=null; btn.disabled=true; inp.className='';
+  var t=val.trim();
+  if(!t){ hint.className='id-hint idle'; hint.textContent='ID লিখলে তথ্য তাৎক্ষণিক দেখাবে'; return; }
+  var r=empDB[t.toLowerCase()];
+  if(r){ foundEmp=r; inp.className='ok'; btn.disabled=false;
+    hint.className='id-hint ok'; hint.textContent='✓ '+r.name+' — '+r.designation;
+  } else {
+    inp.className='bad'; hint.className='id-hint bad';
+    hint.textContent='✗ এই ID কর্মী তালিকায় নেই';
+  }
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  var inp=document.getElementById('inp-id');
+  if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter'&&foundEmp) proceedStaff(); });
+});
+
+// ── Proceed ──────────────────────────────────────────────────────
+function proceedStaff(){ if(foundEmp){ emp=foundEmp; buildConfirm(); } }
+
+function proceedGuest(){
+  var name=document.getElementById('g-name').value.trim(),
+      org=document.getElementById('g-org').value.trim(),
+      desig=document.getElementById('g-desig').value.trim(),
+      mobile=document.getElementById('g-mobile').value.trim(),
+      errBox=document.getElementById('guest-err');
+  errBox.innerHTML='';
+  if(!name){ errBox.innerHTML='<div class="alert alert-err">নাম লিখুন</div>'; return; }
+  if(!org){ errBox.innerHTML='<div class="alert alert-err">প্রতিষ্ঠানের নাম লিখুন</div>'; return; }
+  emp={officialId:'',name:name,designation:desig||'অতিথি',department:org,unit:'',mobile:mobile,email:'',organization:org};
+  buildConfirm();
+}
+
+// ── Confirm ──────────────────────────────────────────────────────
+function buildConfirm(){
+  var isS=cType==='staff';
+  document.getElementById('c-badge').innerHTML=isS
+    ?'<span class="badge badge-staff">PKSF কর্মী</span>'
+    :'<span class="badge badge-guest">বাইরের অতিথি</span>';
+  var rows=[];
+  if(isS&&emp.officialId) rows.push(['Official ID',emp.officialId]);
+  rows.push(['নাম',emp.name]);
+  if(emp.designation) rows.push(['পদবি',emp.designation]);
+  if(isS&&emp.department) rows.push(['বিভাগ',emp.department]);
+  if(isS&&emp.unit) rows.push(['ইউনিট',emp.unit]);
+  if(!isS&&emp.department) rows.push(['প্রতিষ্ঠান',emp.department]);
+  if(emp.mobile) rows.push(['মোবাইল',emp.mobile]);
+  document.getElementById('c-rows').innerHTML=rows.map(function(r){
+    return '<div class="info-row"><span class="info-lbl">'+r[0]+'</span><span class="info-val">'+r[1]+'</span></div>';
+  }).join('');
+  document.getElementById('c-err').innerHTML='';
+  document.getElementById('btn-sub').disabled=false;
+  document.getElementById('btn-sub').textContent='✓ উপস্থিতি নিশ্চিত করুন';
+  show('sec-confirm');
+  initSig();
+}
+
+// ── Signature ────────────────────────────────────────────────────
+var sc,sx,sd=false,sh=false;
+function initSig(){
+  sc=document.getElementById('sigPad');
+  var dpr=window.devicePixelRatio||1, pw=sc.parentElement.clientWidth-4;
+  sc.style.width=pw+'px'; sc.style.height='150px';
+  sc.width=pw*dpr; sc.height=150*dpr;
+  sx=sc.getContext('2d'); sx.scale(dpr,dpr);
+  sx.strokeStyle='#1a3a2a'; sx.lineWidth=2.5; sx.lineCap=sx.lineJoin='round';
+  sh=false;
+  function gp(e){ var r=sc.getBoundingClientRect(),d=window.devicePixelRatio||1,s=e.touches?e.touches[0]:e;
+    return{x:(s.clientX-r.left)*sc.width/r.width/d,y:(s.clientY-r.top)*sc.height/r.height/d};}
+  sc.onmousedown=function(e){sd=true;var p=gp(e);sx.beginPath();sx.moveTo(p.x,p.y);e.preventDefault();};
+  sc.onmousemove=function(e){if(!sd)return;var p=gp(e);sx.lineTo(p.x,p.y);sx.stroke();sh=true;};
+  sc.onmouseup=sc.onmouseleave=function(){sd=false;};
+  sc.ontouchstart=function(e){sd=true;var p=gp(e);sx.beginPath();sx.moveTo(p.x,p.y);e.preventDefault();};
+  sc.ontouchmove=function(e){if(!sd)return;var p=gp(e);sx.lineTo(p.x,p.y);sx.stroke();sh=true;e.preventDefault();};
+  sc.ontouchend=function(){sd=false;};
+}
+function clearSig(){ if(sx){ sx.clearRect(0,0,sc.width,sc.height); sh=false; } }
+
+// ── Submit ───────────────────────────────────────────────────────
+function submitForm(){
+  var errBox=document.getElementById('c-err');
+  errBox.innerHTML='';
+  if(!sh){ errBox.innerHTML='<div class="alert alert-err">অনুগ্রহ করে স্বাক্ষর করুন</div>'; return; }
+  var btn=document.getElementById('btn-sub');
+  btn.disabled=true; btn.textContent='সাবমিট হচ্ছে…';
+  var sig='';
+  try{ sig=sc.toDataURL('image/jpeg',0.2); }catch(_){ sig='স্বাক্ষরিত ✓'; }
+  show('sec-loading');
+
+  var payload = {
+    action:'submitAttendance',
+    type:cType, eventCode:EVENT_CODE,
+    eventName:evInfo?evInfo.name:'',
+    officialId:emp.officialId||'', name:emp.name||'',
+    designation:emp.designation||'', department:emp.department||'',
+    unit:emp.unit||'', mobile:emp.mobile||'',
+    organization:emp.organization||'', signature:sig
+  };
+
+  fetch(APPS_URL, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(res){
+    if(res.success){
+      document.getElementById('s-name').textContent=res.name;
+      document.getElementById('s-ev').textContent=(evInfo?evInfo.name+' | ':'')+
+        (evInfo&&evInfo.date?evInfo.date:'');
+      document.getElementById('s-time').textContent=res.time;
+      show('sec-success');
+    } else if(res.duplicate){
+      show('sec-confirm'); btn.disabled=false;
+      btn.textContent='✓ উপস্থিতি নিশ্চিত করুন';
+      errBox.innerHTML='<div class="alert alert-warn">⚠️ '+res.message+'</div>';
+    } else {
+      document.getElementById('e-msg').textContent=res.message||'অজানা ত্রুটি।';
+      show('sec-error');
+    }
+  })
+  .catch(function(){
+    show('sec-confirm'); btn.disabled=false;
+    btn.textContent='✓ উপস্থিতি নিশ্চিত করুন';
+    errBox.innerHTML='<div class="alert alert-err">ইন্টারনেট সংযোগ যাচাই করুন।</div>';
+  });
+}
+</script>
+</body>
+</html>
